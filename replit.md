@@ -53,6 +53,7 @@ _No additional project-specific preferences recorded._
 
 - The artifact's Vite config requires `PORT` and `BASE_PATH` for direct build commands.
 - Keep AstroMind's API under `/astro-api`; `/api` is already routed to the shared Express service.
+- Do not exclude `.pythonlibs` from `.replitignore`; the published FastAPI service needs the environment installed during its build.
 
 ## Pointers
 

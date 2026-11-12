@@ -36,8 +36,11 @@ localPort = 8000
 run = "uv run --project ../.. python -m uvicorn main:app --host 0.0.0.0 --port $PORT"
 
 [services.production]
-build = [ "sh", "-c", "if [ -d artifacts/astromind ]; then cd artifacts/astromind; fi; uv sync --project ../.. --locked" ]
-run = "if [ -d artifacts/astromind ]; then cd artifacts/astromind; fi; uv run --project ../.. --no-sync python -m uvicorn main:app --host 0.0.0.0 --port $PORT"
+build = [ "sh", "-c", "if [ -d artifacts/astromind ]; then cd artifacts/astromind; fi; UV_PROJECT_ENVIRONMENT=.pythonlibs uv sync --project ../.. --locked" ]
+run = "if [ -d artifacts/astromind ]; then cd artifacts/astromind; fi; UV_PROJECT_ENVIRONMENT=.pythonlibs uv run --project ../.. --no-sync python -m uvicorn main:app --host 0.0.0.0 --port $PORT"
+
+[services.production.health.startup]
+path = "/astro-api/health"
 
 [services.env]
 PORT = "8000"
