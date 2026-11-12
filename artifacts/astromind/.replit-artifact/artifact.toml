@@ -1,0 +1,42 @@
+kind = "web"
+previewPath = "/"
+title = "AstroMind Space Mission Suite"
+description = "A demo-ready mission planning suite for deep-space missions and Mars surface EVAs, with orbital estimates, route editing, risk assessments, and AI-generated planning briefs."
+version = "1.0.0"
+id = "artifacts/astromind"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22994
+
+[services.development]
+run = "pnpm --filter @workspace/astromind run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/astromind", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/astromind/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22994"
+BASE_PATH = "/"
+
+[[services]]
+name = "api"
+paths = [ "/astro-api" ]
+localPort = 8000
+
+[services.development]
+run = "uv run --project ../.. python -m uvicorn main:app --host 0.0.0.0 --port $PORT"
+
+[services.production]
+run = "uv run --project ../.. python -m uvicorn main:app --host 0.0.0.0 --port $PORT"
+
+[services.env]
+PORT = "8000"

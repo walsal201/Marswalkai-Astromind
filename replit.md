@@ -1,6 +1,6 @@
-# [Project name]
+# AstroMind Space Mission Suite
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+AstroMind is a demo-ready mission-planning suite for deep-space missions and Mars surface EVAs.
 
 ## Run & Operate
 
@@ -10,11 +10,15 @@ _Replace the heading above with the project's name, and this line with one sente
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required env: `DATABASE_URL` — Postgres connection string
+- AstroMind preview uses the managed `artifacts/astromind: web` and `artifacts/astromind: api` workflows.
+- `pnpm --filter @workspace/astromind run typecheck` — typecheck AstroMind's Vite host.
+- `PORT=22994 BASE_PATH=/ pnpm --filter @workspace/astromind run build` — build AstroMind's web host.
+- AstroMind starts in Demo mode; optional CrewAI dependencies and provider credentials are documented in `artifacts/astromind/README.md`.
 
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
+- Shared API: Express 5; AstroMind API: FastAPI
 - DB: PostgreSQL + Drizzle ORM
 - Validation: Zod (`zod/v4`), `drizzle-zod`
 - API codegen: Orval (from OpenAPI spec)
@@ -22,23 +26,33 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/astromind/public/mission-console.html` — supplied mission console UI.
+- `artifacts/astromind/main.py` — FastAPI routes and demo/live mode selection.
+- `artifacts/astromind/demo_data.py` — orbital calculations and demo responses.
+- `artifacts/astromind/crew_agents.py` — optional CrewAI agents.
+- `artifacts/astromind/.replit-artifact/artifact.toml` — web and API service routing.
+- `lib/api-spec/openapi.yaml` — shared Express API contract.
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- AstroMind keeps the supplied HTML console and displays it through the Vite app host.
+- AstroMind API requests use `/astro-api` so they do not collide with the shared `/api` Express service.
+- Demo mode is the default and requires no provider credentials; CrewAI is optional.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- Deep-space mission profiles, trajectory metrics, risk matrices, timelines, briefs, and chat.
+- MarswalkAI route editing, synthetic terrain layers, science targets, weather, hazards, EVA plans, and checklists.
+- Exportable planning output; all values are planning-level estimates.
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+_No additional project-specific preferences recorded._
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- The artifact's Vite config requires `PORT` and `BASE_PATH` for direct build commands.
+- Keep AstroMind's API under `/astro-api`; `/api` is already routed to the shared Express service.
 
 ## Pointers
 

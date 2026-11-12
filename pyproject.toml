@@ -1,0 +1,18 @@
+[project]
+name = "astromind-workspace"
+version = "0.1.0"
+description = "Runtime dependencies for the AstroMind FastAPI app"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.110",
+    "pydantic>=2.6",
+    "python-dotenv>=1.0",
+    "uvicorn[standard]>=0.29",
+]
+
+[build-system]
+requires = ["uv_build>=0.13.4,<0.14.0"]
+build-backend = "uv_build"
+
+[tool.uv]
+package = false

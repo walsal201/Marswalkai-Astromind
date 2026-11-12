@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AstroMind — AI Space Mission Suite</title>
+<meta name="description" content="Multi-agent AI space mission suite: deep space mission planner plus a Mars surface (EVA) explorer. Works instantly, no API keys.">
+<style>
+:root{--bg:#04060d;--panel:#0b1020;--panel2:#10172b;--line:#1c2742;--text:#e6ecff;--muted:#8a96b8;--cyan:#38bdf8;--violet:#a78bfa;--mars:#ff6b4a;--ok:#34d399;--warn:#fbbf24;--crit:#f87171;--r:14px;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;
+background-image:radial-gradient(1px 1px at 20px 30px,#fff9,transparent),radial-gradient(1px 1px at 120px 90px,#fff6,transparent),radial-gradient(1.5px 1.5px at 180px 20px,#fffb,transparent),radial-gradient(900px 500px at 15% -10%,#1b2a6b55,transparent),radial-gradient(800px 500px at 100% 0,#5b21b633,transparent);
+background-size:210px 140px,170px 130px,260px 190px,auto,auto;background-attachment:fixed}
+a{color:var(--cyan);text-decoration:none}
+h1,h2,h3,h4{line-height:1.2;margin:0 0 .5em}
+.mono{font-family:var(--mono)}
+.nav{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:18px;padding:12px 24px;background:#04060dcc;backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.brand{font-weight:800;letter-spacing:.14em;font-size:15px;color:var(--text);display:flex;gap:8px;align-items:center}
+.nav .links{display:flex;gap:4px;margin-left:12px}
+.nav .links a{padding:7px 14px;border-radius:999px;color:var(--muted);font-size:14px}
+.nav .links a.on,.nav .links a:hover{background:var(--panel2);color:var(--text)}
+.pill{margin-left:auto;font:12px var(--mono);padding:6px 12px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.pill.live{color:var(--ok);border-color:#34d39955}.pill.demo{color:var(--warn);border-color:#fbbf2455}
+.view{display:none;max-width:1400px;margin:0 auto;padding:24px}
+.view.on{display:block}
+.card{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:var(--r);padding:20px}
+.btn{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:0;border-radius:10px;padding:10px 16px;font:600 14px inherit;cursor:pointer;transition:.15s;width:100%}
+.btn:hover{filter:brightness(1.15);transform:translateY(-1px)}.btn:disabled{opacity:.5;cursor:wait;transform:none}
+.btn.ghost{background:var(--panel2);border:1px solid var(--line);color:var(--text)}
+.btn.mars{background:linear-gradient(135deg,#ea580c,#dc2626)}
+.btn.sm{width:auto;padding:7px 12px;font-size:13px}
+label{display:block;font:11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:12px 0 5px}
+select,input[type=number],input[type=text]{width:100%;background:#070b17;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:9px 10px;font:14px inherit}
+select:focus,input:focus{outline:2px solid #38bdf866;border-color:var(--cyan)}
+.hero{text-align:center;padding:64px 12px 28px}
+.hero .logo{font-size:56px}
+.hero h1{font-size:clamp(38px,7vw,68px);letter-spacing:.06em;background:linear-gradient(90deg,#7dd3fc,#c4b5fd,#fda4af);-webkit-background-clip:text;background-clip:text;color:transparent;margin:6px 0 10px}
+.hero p{max-width:720px;margin:0 auto;color:var(--muted);font-size:17px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px;margin-top:28px}
+.prod h2{font-size:26px}.prod .tag{font:11px var(--mono);letter-spacing:.1em;color:var(--mars)}.prod.a .tag{color:var(--cyan)}
+.prod ul{padding-left:18px;color:#c3cdea;margin:14px 0 20px}.prod li{margin:6px 0}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.tagc{font:12px var(--mono);padding:6px 11px;border:1px solid var(--line);border-radius:999px;color:#b7c3e6;background:#0a1020}
+.arch{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;margin:12px 0;font:13px var(--mono);color:#c3cdea}
+.arch span.b{padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}.arch i{color:var(--muted);font-style:normal}
+.footer{text-align:center;color:var(--muted);font-size:13px;padding:30px 12px 50px}
+.layout{display:grid;grid-template-columns:300px 1fr;gap:20px;align-items:start}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.nav{flex-wrap:wrap}}
+.side{position:sticky;top:72px;display:grid;gap:16px}
+@media(max-width:900px){.side{position:static}}
+.side h3{font-size:14px;letter-spacing:.06em;margin-bottom:6px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stack{display:grid;gap:8px;margin-top:8px}
+.tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line);margin-bottom:18px;padding-bottom:0}
+.tabs button{background:none;border:0;color:var(--muted);padding:10px 14px;font:600 14px inherit;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+.tabs button.on{color:var(--text);border-color:var(--cyan)}.mars-t .tabs button.on{border-color:var(--mars)}
+.tab{display:none}.tab.on{display:block}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.metric{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+.metric b{display:block;font:700 28px var(--mono);color:var(--cyan)}.metric span{font:11px var(--mono);letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+.mars-t .metric b{color:var(--mars)}
+.out{min-height:120px}
+.ai-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font:600 12px var(--mono);letter-spacing:.08em;color:var(--muted)}
+.badge{padding:3px 9px;border-radius:999px;border:1px solid var(--line);font-size:11px}.badge.live{color:var(--ok);border-color:#34d39955}.badge.demo{color:var(--warn);border-color:#fbbf2455}
+.placeholder{color:var(--muted)}.err{color:var(--crit)}.note{color:var(--warn);font-size:13px}
+.out h2,.out h3,.out h4{margin:1em 0 .4em}.out h2{font-size:20px}.out h3{font-size:16px;color:#c4b5fd}.out p{margin:.5em 0}
+.out ul,.out ol{padding-left:20px}.out li{margin:4px 0}.out code{font-family:var(--mono);background:#0a1020;padding:1px 5px;border-radius:5px}
+.out hr{border:0;border-top:1px solid var(--line)}
+.tbl{overflow-x:auto;margin:10px 0}.out table{border-collapse:collapse;width:100%;font-size:13.5px}
+.out th,.out td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}.out th{background:#0a1020;font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.chip{font:700 11px var(--mono);padding:2px 8px;border-radius:999px}.chip.CRITICAL{background:#f8717126;color:var(--crit)}.chip.HIGH{background:#fb923c26;color:#fb923c}.chip.MEDIUM{background:#fbbf2426;color:var(--warn)}.chip.LOW{background:#34d39926;color:var(--ok)}
+li.cb{list-style:none;margin-left:-18px}li.cb input{accent-color:var(--ok);margin-right:8px}
+.skel{height:12px;border-radius:6px;margin:12px 0;background:linear-gradient(90deg,#141c33,#1f2a4a,#141c33);background-size:200% 100%;animation:sh 1.2s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+.chat{display:flex;flex-direction:column;height:520px}.msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px}
+.msg{max-width:88%;padding:10px 14px;border-radius:14px;font-size:14.5px}.msg.ai{background:var(--panel);border:1px solid var(--line);align-self:flex-start}.msg.user{background:#1d3a8a;align-self:flex-end}
+.msg p{margin:.3em 0}.chatform{display:flex;gap:8px;margin-top:10px}.chatform button{width:auto}
+.chip-btn{background:#0a1020;border:1px solid var(--line);color:#b7c3e6;border-radius:999px;padding:6px 12px;font-size:12.5px;cursor:pointer}.chip-btn:hover{border-color:var(--cyan)}
+svg text{font-family:var(--mono)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.mini{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+.mini h4{font:600 12px var(--mono);letter-spacing:.06em;color:var(--muted);text-transform:uppercase;margin:0 0 4px}.mini b{display:block;font:700 22px var(--mono);color:var(--mars);margin-bottom:6px}.mini p{margin:0;color:#c3cdea;font-size:13.5px}
+.mapwrap{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#000}
+#mapCanvas{width:100%;display:block;cursor:crosshair;image-rendering:auto}
+.mapbar{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.mapbar button{background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:7px 12px;font:600 13px inherit;cursor:pointer}.mapbar button.on{border-color:var(--mars);background:#3a1510}
+.hud{position:absolute;left:10px;bottom:10px;font:12px var(--mono);background:#000a;padding:5px 9px;border-radius:8px}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font:12px var(--mono);color:var(--muted);margin-top:8px}.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
+.toggles{display:grid;gap:6px;margin-top:4px}.toggles label{display:flex;gap:8px;align-items:center;margin:0;font:13px system-ui;text-transform:none;letter-spacing:0;color:var(--text)}.toggles input{accent-color:var(--mars)}
+.gantt{display:flex;height:46px;border-radius:10px;overflow:hidden;border:1px solid var(--line);margin:10px 0}.gantt div{display:flex;align-items:center;justify-content:center;font:600 11px var(--mono);color:#fff;overflow:hidden;white-space:nowrap;padding:0 4px}
+.legendg{display:grid;gap:4px;font:12.5px var(--mono);color:#c3cdea}
+.tgt{display:grid;grid-template-columns:44px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}.tgt .p{font:700 13px var(--mono);padding:4px 0;text-align:center;border-radius:8px;height:fit-content}
+.p1{background:#f8717126;color:var(--crit)}.p2{background:#fbbf2426;color:var(--warn)}.p3{background:#38bdf826;color:var(--cyan)}
+.tgt h4{margin:0 0 2px}.tgt p{margin:2px 0;color:#c3cdea;font-size:13.5px}.tgt small{color:var(--muted);font:12px var(--mono)}
+.fc{display:flex;gap:6px;align-items:flex-end;height:90px;margin-top:8px}.fc div{flex:1;background:linear-gradient(#ff6b4a,#7c2d12);border-radius:5px 5px 0 0;position:relative;min-height:6px}.fc span{position:absolute;bottom:-18px;left:0;right:0;text-align:center;font:10px var(--mono);color:var(--muted)}
+.warnbox{font-size:12.5px;color:var(--muted);margin-top:8px}
+</style>
+</head>
+<body>
+<header class="nav">
+  <a class="brand" href="#/">🚀 ASTROMIND</a>
+  <nav class="links">
+    <a href="#/" data-r="home">Home</a><a href="#/astromind" data-r="astro">AstroMind</a><a href="#/marswalk" data-r="mars">MarswalkAI</a>
+  </nav>
+  <span id="status" class="pill">connecting…</span>
+</header>
+
+<main>
+<!-- ============ HOME ============ -->
+<section id="view-home" class="view">
+  <div class="hero">
+    <div class="logo">🚀</div>
+    <h1>AstroMind</h1>
+    <p>A multi-agent AI space mission suite: plan deep space missions to any destination in the solar system, then walk the surface of Mars with an AI-optimised EVA planner. Ready to use right now, no keys, no setup.</p>
+  </div>
+  <div class="grid2">
+    <div class="card prod">
+      <span class="tag">NEW · MARS SURFACE</span><h2>🔴 MarswalkAI</h2>
+      <p style="color:var(--muted)">Layered Mars surface explorer for EVA planning. Draw your route, assess hazards and plan the science, with a crew of specialised AI agents behind it.</p>
+      <ul><li>Interactive layered map: topography, mineralogy, thermal, HiRISE coverage</li><li>Click-to-edit route, hazard zones and science targets</li><li>Live terrain profile with slope and elevation stats</li><li>AI route plan, hazard assessment, weather report, EVA checklist</li><li>Formal EVA operations order you can export</li></ul>
+      <a class="btn mars" style="display:block;text-align:center" href="#/marswalk">Launch MarswalkAI →</a>
+    </div>
+    <div class="card prod a">
+      <span class="tag">DEEP SPACE PLANNER</span><h2>🛸 AstroMind</h2>
+      <p style="color:var(--muted)">Plan a mission to Mars, Europa, Titan, an asteroid, Lunar Gateway or Venus. Real Hohmann maths, plus AI-generated profiles, risks, timelines and briefs.</p>
+      <ul><li>Mission profiles for six destinations and five mission types</li><li>Animated Hohmann transfer trajectory visualiser</li><li>Risk matrix graded CRITICAL / HIGH / MEDIUM</li><li>Milestone timeline and formal mission brief</li><li>Mission Q&amp;A chat with the AI crew</li></ul>
+      <a class="btn" style="display:block;text-align:center" href="#/astromind">Launch AstroMind →</a>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px">
+    <h3>How it works</h3>
+    <div class="arch"><span class="b">Browser UI</span><i>→</i><span class="b">FastAPI backend</span><i>→</i><span class="b">CrewAI agents (architect · dynamics · risk · EVA · scientist · safety · writer)</span><i>→</i><span class="b">LLM (server-side key)</span></div>
+    <p style="color:var(--muted);text-align:center;margin:0">No credentials are ever entered in the browser. With no server key configured, the backend answers from its built-in demo engine so everything still works.</p>
+  </div>
+  <div class="card" style="margin-top:20px">
+    <h3>Science themes covered</h3>
+    <div class="chips"><span class="tagc">MOLA topography</span><span class="tagc">CRISM mineralogy</span><span class="tagc">THEMIS thermal inertia</span><span class="tagc">HiRISE 25 cm/px imagery</span><span class="tagc">MCS atmosphere</span><span class="tagc">Rover ground truth</span><span class="tagc">Space weather</span><span class="tagc">Hohmann transfers</span></div>
+    <p class="warnbox">Maps and terrain are procedurally generated illustrations for planning exploration, not real NASA imagery or elevation data. Figures are planning-level estimates.</p>
+  </div>
+</section>
+
+<!-- ============ ASTROMIND ============ -->
+<section id="view-astro" class="view">
+  <div class="layout">
+    <aside class="side">
+      <div class="card">
+        <h3>🚀 Mission Parameters</h3>
+        <label>Destination</label>
+        <select id="a-dest"><option>Mars</option><option value="Europa">Europa (Jupiter system)</option><option value="Titan">Titan (Saturn system)</option><option>Near-Earth Asteroid</option><option>Lunar Gateway</option><option value="Venus">Venus Flyby</option></select>
+        <label>Mission type</label>
+        <select id="a-type"><option>Crewed Mission</option><option>Robotic Lander</option><option>Flyby / Observation</option><option>Sample Return</option><option>Orbital Survey</option></select>
+        <label>Launch year</label>
+        <select id="a-year"><option>2028</option><option>2029</option><option>2031</option><option>2033</option><option>2035</option></select>
+        <div class="row2"><div><label>Crew (0 = robotic)</label><input id="a-crew" type="number" min="0" max="12" value="4"></div><div><label>Max days</label><input id="a-days" type="number" min="30" max="5000" value="900"></div></div>
+      </div>
+      <div class="card">
+        <h3>🤖 AI Actions</h3>
+        <div class="stack">
+          <button class="btn" data-a="profile">Generate Mission Profile</button>
+          <button class="btn ghost" data-a="risks">Analyze Mission Risks</button>
+          <button class="btn ghost" data-a="timeline">Build Mission Timeline</button>
+          <button class="btn ghost" data-a="brief">Draft Mission Brief</button>
+        </div>
+      </div>
+    </aside>
+    <div>
+      <div class="tabs" id="a-tabs"><button class="on" data-t="dash">Dashboard</button><button data-t="traj">Trajectory</button><button data-t="risks">Risk Matrix</button><button data-t="timeline">Timeline</button><button data-t="chat">AI Chat</button><button data-t="brief">Mission Brief</button></div>
+      <div class="tab on" data-p="dash">
+        <div class="metrics">
+          <div class="metric"><b id="m-dv">—</b><span>Δv budget (km/s)</span></div><div class="metric"><b id="m-t">—</b><span>Transit time (days)</span></div>
+          <div class="metric"><b id="m-au">—</b><span>Peak distance (AU)</span></div><div class="metric"><b id="m-cd">—</b><span>Comm delay (min)</span></div>
+        </div>
+        <div class="card out" id="o-profile"><div class="ai-head"><span>🛸 AI MISSION PROFILE</span></div><p class="placeholder">Choose a destination and mission type, then click <b>Generate Mission Profile</b>. The metrics above update instantly from orbital maths.</p></div>
+      </div>
+      <div class="tab" data-p="traj">
+        <div class="card"><h3>Orbital Trajectory Visualiser</h3><svg id="trajSvg" viewBox="0 0 700 640" style="width:100%;max-height:640px"></svg>
+          <p class="warnbox">Diagram not to scale. Orbit radii are compressed for display. Hohmann transfer is an impulsive first-pass estimate.</p></div>
+        <div class="card" style="margin-top:16px"><h3>Transfer parameters</h3><div class="tbl out"><table id="trajTable"></table></div><p class="warnbox" id="trajNote"></p></div>
+      </div>
+      <div class="tab" data-p="risks"><div class="card out" id="o-risks"><div class="ai-head"><span>⚠ RISK MATRIX</span></div><p class="placeholder">Click <b>Analyze Mission Risks</b> to generate a graded risk matrix.</p></div></div>
+      <div class="tab" data-p="timeline"><div class="card out" id="o-timeline"><div class="ai-head"><span>📅 MISSION TIMELINE</span></div><p class="placeholder">Click <b>Build Mission Timeline</b>.</p></div></div>
+      <div class="tab" data-p="chat"><div class="card chat" id="a-chat"></div></div>
+      <div class="tab" data-p="brief"><div class="card out" id="o-brief"><div class="ai-head"><span>📄 MISSION BRIEF</span></div><p class="placeholder">Click <b>Draft Mission Brief</b> to generate a formal brief.</p></div>
+        <div style="margin-top:12px;display:flex;gap:10px"><button class="btn sm ghost" id="a-export">💾 Export all as Markdown</button></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MARSWALK ============ -->
+<section id="view-mars" class="view mars-t">
+  <div class="layout">
+    <aside class="side">
+      <div class="card">
+        <h3>📍 Landing Region</h3>
+        <label>Primary site</label>
+        <select id="m-site"></select>
+        <div class="row2"><div><label>EVA hours</label><input id="m-hours" type="number" min="1" max="12" step="0.5" value="6"></div>
+        <div><label>Crew</label><select id="m-crew"><option>2-person EVA team</option><option>3-person EVA team</option><option>Solo EVA (emergency only)</option></select></div></div>
+        <label>Primary objective</label>
+        <select id="m-obj"><option>Geological Survey</option><option>Astrobiology Hunt</option><option>ISRU Site Assessment</option><option>Sample Cache Retrieval</option><option>Equipment Repair</option></select>
+      </div>
+      <div class="card"><h3>🗂 Data Layers</h3><div class="toggles" id="m-layers"></div></div>
+      <div class="card"><h3>🤖 AI Marswalk Tools</h3><div class="stack">
+        <button class="btn mars" data-m="plan">🚶 Plan Marswalk</button><button class="btn ghost" data-m="hazards">⚠ Assess Hazards</button><button class="btn ghost" data-m="science">🔬 Science Brief</button>
+        <button class="btn ghost" data-m="weather">🌪 Weather Report</button><button class="btn ghost" data-m="checklist">✅ EVA Checklist</button></div></div>
+    </aside>
+    <div>
+      <div class="tabs" id="m-tabs"><button class="on" data-t="map">🗺 Map</button><button data-t="plan">Plan</button><button data-t="data">NASA Data</button><button data-t="weather">Weather</button><button data-t="science">Science</button><button data-t="hazards">Hazards</button><button data-t="timeline">Timeline</button><button data-t="checklist">Checklist</button><button data-t="brief">Brief</button><button data-t="chat">AI Chat</button></div>
+
+      <div class="tab on" data-p="map">
+        <div class="metrics" id="m-hud"></div>
+        <div class="mapwrap"><canvas id="mapCanvas" width="480" height="300"></canvas><div class="hud" id="m-cursor">hover the map</div></div>
+        <div class="mapbar" id="m-modes"><button class="on" data-mode="select">Select</button><button data-mode="wp">+ Waypoint</button><button data-mode="hz">+ Hazard</button><button data-mode="sci">+ Science</button><button id="m-clear">Clear route</button><button id="m-reset">Reset layers</button></div>
+        <div class="legend"><span><i style="background:#c0693a"></i>MOLA topo</span><span><i style="background:#2ee6aa"></i>CRISM minerals</span><span><i style="background:#ff9628"></i>THEMIS thermal</span><span><i style="background:#fbbf24"></i>Route</span><span><i style="background:#f87171"></i>Hazards</span><span><i style="background:#fde047"></i>Science</span><span><i style="background:#38bdf8"></i>HiRISE coverage</span></div>
+        <p class="warnbox">Synthetic terrain: procedurally generated for illustration, not a real elevation model or imagery. ~12.5 m per pixel.</p>
+        <div class="card" style="margin-top:14px"><h3>⛰ Terrain profile along route</h3><svg id="profSvg" viewBox="0 0 700 150" style="width:100%"></svg>
+          <div class="metrics" id="m-prof" style="margin:10px 0 0"></div></div>
+      </div>
+
+      <div class="tab" data-p="plan"><div class="card out" id="o-plan"><div class="ai-head"><span>🚶 MARSWALK ROUTE PLAN</span></div><p class="placeholder">Edit your route on the map, then click <b>Plan Marswalk</b>.</p></div></div>
+      <div class="tab" data-p="data"><div class="cards" id="m-data"></div></div>
+      <div class="tab" data-p="weather"><div class="cards" id="m-wx"></div><div class="card out" id="o-weather" style="margin-top:16px"><div class="ai-head"><span>🌪 EVA WEATHER ANALYSIS</span></div><p class="placeholder">Click <b>Weather Report</b>.</p></div></div>
+      <div class="tab" data-p="science"><div class="card" id="m-targets"></div><div class="card out" id="o-science" style="margin-top:16px"><div class="ai-head"><span>🔬 SCIENCE BRIEF</span></div><p class="placeholder">Click <b>Science Brief</b>.</p></div></div>
+      <div class="tab" data-p="hazards"><div class="cards" id="m-haz"></div><div class="card out" id="o-hazards" style="margin-top:16px"><div class="ai-head"><span>⚠ HAZARD INTELLIGENCE</span></div><p class="placeholder">Click <b>Assess Hazards</b>.</p></div></div>
+      <div class="tab" data-p="timeline"><div class="card"><h3>EVA Timeline</h3><div class="gantt" id="m-gantt"></div><div class="legendg" id="m-gleg"></div></div><div class="metrics" id="m-budget" style="margin-top:16px"></div></div>
+      <div class="tab" data-p="checklist"><div class="card out" id="o-checklist"><div class="ai-head"><span>✅ EVA CHECKLIST</span></div><p class="placeholder">Click <b>EVA Checklist</b>.</p></div></div>
+      <div class="tab" data-p="brief"><div class="card out" id="o-brief2"><div class="ai-head"><span>📋 EVA OPERATIONS ORDER</span></div><p class="placeholder">Generate the full operations order below.</p></div>
+        <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn sm mars" data-m="brief">📋 Generate Full Mission Brief</button><button class="btn sm ghost" id="m-export">💾 Export all as Markdown</button></div></div>
+      <div class="tab" data-p="chat"><div class="card chat" id="m-chat"></div></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<div class="footer">AstroMind v2 · multi-agent AI on CrewAI · planning-level estimates, not official NASA data</div>
+
+<script>
+const API=(window.API_URL||'').replace(/\/$/,'');
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const STORE={astro:{},mars:{}};
+
+async function api(path,body){
+  const r=await fetch(API+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!r.ok){let m='Request failed ('+r.status+')';try{const j=await r.json();if(typeof j.detail==='string')m=j.detail}catch{}throw new Error(m)}
+  return r.json();
+}
+
+/* ---------- tiny markdown ---------- */
+function inline(s){return esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/`(.+?)`/g,'<code>$1</code>').replace(/\b(CRITICAL|HIGH|MEDIUM|LOW)\b/g,'<span class="chip $1">$1</span>')}
+function md(src){
+  const L=String(src).replace(/\r/g,'').split('\n');let o='',i=0;const LI=/^\s*([-*]|\d+\.)\s+/;
+  while(i<L.length){
+    const l=L[i];let m;
+    if(/^\s*$/.test(l)){i++;continue}
+    if(m=l.match(/^(#{1,4})\s+(.*)/)){const n=m[1].length+1;o+=`<h${n}>${inline(m[2])}</h${n}>`;i++;continue}
+    if(/^\s*---+\s*$/.test(l)){o+='<hr>';i++;continue}
+    if(l.trim().startsWith('|')){
+      const rows=[];while(i<L.length&&L[i].trim().startsWith('|')){rows.push(L[i].trim());i++}
+      const cells=r=>r.replace(/^\||\|$/g,'').split('|').map(c=>c.trim());
+      const sep=rows[1]&&/^[\s|:-]+$/.test(rows[1]);
+      o+='<div class="tbl"><table><thead><tr>'+cells(rows[0]).map(h=>`<th>${inline(h)}</th>`).join('')+'</tr></thead><tbody>'+rows.slice(sep?2:1).map(cells).map(r=>'<tr>'+r.map(c=>`<td>${inline(c)}</td>`).join('')+'</tr>').join('')+'</tbody></table></div>';continue}
+    if(LI.test(l)){
+      const ord=/^\s*\d+\./.test(l);let it='';
+      while(i<L.length&&LI.test(L[i])){const t=L[i].replace(LI,'');const cb=t.match(/^\[( |x|X)\]\s+(.*)/);
+        it+=cb?`<li class="cb"><label style="margin:0;font:inherit;text-transform:none;letter-spacing:0;color:inherit"><input type="checkbox" ${cb[1]!==' '?'checked':''}>${inline(cb[2])}</label></li>`:`<li>${inline(t)}</li>`;i++}
+      o+=(ord?'<ol>':'<ul>')+it+(ord?'</ol>':'</ul>');continue}
+    const p=[];while(i<L.length&&!/^\s*$/.test(L[i])&&!/^(#{1,4}\s|\s*([-*]|\d+\.)\s|\s*\|)/.test(L[i])){p.push(L[i]);i++}
+    if(!p.length){p.push(l);i++}
+    o+=`<p>${inline(p.join(' '))}</p>`;
+  }
+  return o;
+}
+
+/* ---------- run an AI action into a panel ---------- */
+async function runAI(btn,el,title,path,body,store,key){
+  const old=btn&&btn.textContent;if(btn){btn.disabled=true}
+  el.innerHTML=`<div class="ai-head"><span>${title}</span><span class="badge">agents working…</span></div><div class="skel" style="width:90%"></div><div class="skel" style="width:75%"></div><div class="skel" style="width:85%"></div><div class="skel" style="width:60%"></div>`;
+  try{
+    const r=await api(path,body);
+    store[key]=r.text;
+    el.innerHTML=`<div class="ai-head"><span>${title}</span><span class="badge ${r.mode}">${r.mode==='live'?'● LIVE · '+r.engine:'● DEMO'}</span></div>${md(r.text)}${r.note?`<p class="note">${esc(r.note)}</p>`:''}`;
+  }catch(e){el.innerHTML=`<div class="ai-head"><span>${title}</span></div><p class="err">⚠ ${esc(e.message)}. Check that the backend is running.</p>`}
+  if(btn){btn.disabled=false}
+}
+
+/* ---------- chat widget ---------- */
+function chatWidget(root,path,getParams,greeting,chips){
+  root.innerHTML='<div class="msgs"></div><div class="chips"></div><form class="chatform"><input type="text" maxlength="1000" placeholder="Ask anything…" aria-label="Message"><button class="btn">Send</button></form>';
+  const msgs=$('.msgs',root),form=$('form',root),input=$('input',root),hist=[];
+  const add=(c,h)=>{const d=document.createElement('div');d.className='msg '+c;d.innerHTML=h;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d};
+  add('ai',md(greeting));
+  chips.forEach(t=>{const b=document.createElement('button');b.type='button';b.className='chip-btn';b.textContent=t;b.onclick=()=>send(t);$('.chips',root).appendChild(b)});
+  async function send(t){t=t.trim();if(!t)return;add('user',esc(t));input.value='';const w=add('ai','…');
+    try{const r=await api(path,{...getParams(),message:t,history:hist.slice(-10)});w.innerHTML=md(r.text);hist.push({role:'user',content:t.slice(0,3500)},{role:'assistant',content:r.text.slice(0,3500)})}
+    catch(e){w.innerHTML=`<span class="err">${esc(e.message)}</span>`}
+    msgs.scrollTop=msgs.scrollHeight}
+  form.onsubmit=e=>{e.preventDefault();send(input.value)};
+}
+function tabs(root,rootEl){
+  $$('button',root).forEach(b=>b.onclick=()=>{$$('button',root).forEach(x=>x.classList.toggle('on',x===b));$$('.tab',rootEl).forEach(p=>p.classList.toggle('on',p.dataset.p===b.dataset.t))});
+}
+function showTab(rootSel,viewSel,t){const b=document.querySelector(`${rootSel} button[data-t="${t}"]`);b&&b.click()}
+function download(name,text){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/markdown'}));a.download=name;a.click();URL.revokeObjectURL(a.href)}
+
+/* ---------- router + health ---------- */
+const views={home:'#view-home',astro:'#view-astro',mars:'#view-mars'};
+function route(){
+  const h=location.hash.replace('#/','');const k=h==='astromind'?'astro':h==='marswalk'?'mars':'home';
+  for(const v in views)$(views[v]).classList.toggle('on',v===k);
+  $$('.nav .links a').forEach(a=>a.classList.toggle('on',a.dataset.r===k));
+  if(k==='mars')setTimeout(()=>{marsInit();drawMap()},0);
+  if(k==='astro')loadMetrics();
+  scrollTo(0,0);
+}
+addEventListener('hashchange',route);
+fetch(API+'/api/health').then(r=>r.json()).then(h=>{const s=$('#status');s.className='pill '+h.mode;s.textContent=h.mode==='live'?'● Live · CrewAI agents':'● Demo mode · instant'}).catch(()=>{$('#status').textContent='● backend offline'});
+
+/* =====================  ASTROMIND  ===================== */
+const aP=()=>({destination:$('#a-dest').value,mission_type:$('#a-type').value,launch_year:+$('#a-year').value,crew_size:Math.max(0,+$('#a-crew').value||0),duration_days:Math.max(1,+$('#a-days').value||900)});
+let aMetrics=null,mTimer;
+async function loadMetrics(){
+  try{const m=await api('/api/astromind/metrics',aP());aMetrics=m;
+    $('#m-dv').textContent=m.dv_total;$('#m-t').textContent=m.transit_days;$('#m-au').textContent=m.peak_au;$('#m-cd').textContent=m.comm_delay_min;
+    drawTraj(m);}catch{}
+}
+['a-dest','a-type','a-year','a-crew','a-days'].forEach(id=>$('#'+id).addEventListener('input',()=>{clearTimeout(mTimer);mTimer=setTimeout(loadMetrics,250)}));
+function drawTraj(m){
+  const svg=$('#trajSvg'),cx=350,cy=320;let h='';
+  h+='<defs><radialGradient id="sg"><stop offset="0" stop-color="#fde68a"/><stop offset="1" stop-color="#f59e0b"/></radialGradient><linearGradient id="tg" x1="0" x2="1"><stop offset="0" stop-color="#38bdf8"/><stop offset="1" stop-color="#f472b6"/></linearGradient></defs>';
+  if(m.cislunar){
+    h+=`<circle cx="${cx}" cy="${cy}" r="200" fill="none" stroke="#2a3558" stroke-dasharray="4 6"/><circle cx="${cx}" cy="${cy}" r="26" fill="#2563eb"/><text x="${cx}" y="${cy+46}" fill="#9db4ff" text-anchor="middle" font-size="12">EARTH</text>`;
+    h+=`<path id="xfer" d="M ${cx+40} ${cy} C ${cx+60} ${cy-260}, ${cx-240} ${cy-260}, ${cx-200} ${cy}" fill="none" stroke="url(#tg)" stroke-width="2.5"/>`;
+    h+=`<circle cx="${cx-200}" cy="${cy}" r="9" fill="#cbd5e1"/><text x="${cx-200}" y="${cy+28}" fill="#cbd5e1" text-anchor="middle" font-size="12">MOON / NRHO</text>`;
+  }else{
+    const px=r=>80*Math.pow(r,.6),r1=px(1),r2=px(m.r_au),a=(r1+r2)/2,b=Math.sqrt(r1*r2);
+    h+=`<circle cx="${cx}" cy="${cy}" r="${r1}" fill="none" stroke="#2a3558" stroke-dasharray="4 6"/><circle cx="${cx}" cy="${cy}" r="${r2}" fill="none" stroke="#2a3558" stroke-dasharray="4 6"/>`;
+    h+=`<circle cx="${cx}" cy="${cy}" r="30" fill="#f59e0b" opacity=".18"/><circle cx="${cx}" cy="${cy}" r="14" fill="url(#sg)"/><text x="${cx}" y="${cy+34}" fill="#fcd34d" text-anchor="middle" font-size="11">SUN</text>`;
+    h+=`<path id="xfer" d="M ${cx+r1} ${cy} A ${a} ${b} 0 0 0 ${cx-r2} ${cy}" fill="none" stroke="url(#tg)" stroke-width="2.5"/>`;
+    h+=`<circle cx="${cx+r1}" cy="${cy}" r="7" fill="#3b82f6"/><text x="${cx+r1}" y="${cy+24}" fill="#93c5fd" text-anchor="middle" font-size="11">EARTH</text>`;
+    h+=`<circle cx="${cx-r2}" cy="${cy}" r="8" fill="#f87171"/><text x="${cx-r2}" y="${cy+24}" fill="#fca5a5" text-anchor="middle" font-size="11">${esc(m.destination.toUpperCase())}</text>`;
+  }
+  h+='<circle r="5" fill="#fff"><animateMotion dur="6s" repeatCount="indefinite"><mpath href="#xfer"/></animateMotion></circle>';
+  h+=`<text x="350" y="30" fill="#8a96b8" text-anchor="middle" font-size="12">HOHMANN TRANSFER · ${m.transit_days} DAYS</text>`;
+  svg.innerHTML=h;
+  const rows=[['Heliocentric departure v∞',m.dv_vinf_departure+' km/s'],['LEO departure Δv',m.dv_departure_leo+' km/s'],['Arrival Δv (heliocentric)',m.dv_arrival+' km/s'],['Total Δv (estimate)',m.dv_total+' km/s'],['Transfer semi-major axis',m.a_transfer+' AU'],['Eccentricity',m.ecc],['Synodic period',m.synodic_days+' days'],['Transit time',m.transit_days+' days']];
+  $('#trajTable').innerHTML='<thead><tr><th>Parameter</th><th>Value</th></tr></thead><tbody>'+rows.map(r=>`<tr><td>${r[0]}</td><td class="mono">${r[1]}</td></tr>`).join('')+'</tbody>';
+  $('#trajNote').textContent=m.notes;
+}
+const aOut={profile:['#o-profile','🛸 AI MISSION PROFILE','dash'],risks:['#o-risks','⚠ RISK MATRIX','risks'],timeline:['#o-timeline','📅 MISSION TIMELINE','timeline'],brief:['#o-brief','📄 MISSION BRIEF','brief']};
+$$('[data-a]').forEach(b=>b.onclick=()=>{const [sel,title,tab]=aOut[b.dataset.a];showTab('#a-tabs','#view-astro',tab);runAI(b,$(sel),title,'/api/astromind/'+b.dataset.a,aP(),STORE.astro,b.dataset.a)});
+tabs($('#a-tabs'),$('#view-astro'));
+chatWidget($('#a-chat'),'/api/astromind/chat',aP,"Hello! I'm **AstroMind**, your AI mission planning assistant. Ask about launch windows, delta-v, crew safety, communication blackouts, power or science objectives.",['What is the delta-v budget?','When is the launch window?','How bad is the comm delay?','Radiation risk for the crew?']);
+$('#a-export').onclick=()=>{const p=aP();download('astromind-mission.md',`# AstroMind: ${p.mission_type} to ${p.destination}\n\n`+Object.entries(STORE.astro).map(([k,v])=>v).join('\n\n---\n\n')||'Nothing generated yet.')};
+
+/* =====================  MARSWALK  ===================== */
+const SITES={
+ jezero:{n:'Jezero Crater (Perseverance)',lat:18.4,lon:77.7,elev:-2900,temp:-63,wind:12,tau:0.5,press:700,seed:11,
+  cards:[['MOLA Topography','−2,900 m','Jezero floor is an ancient lake basin, ideal for sediment sampling.'],['CRISM Mineralogy','Mg-carbonate detected','Carbonates, olivine and hydrated silica in the delta: prime biosignature-preservation targets.'],['THEMIS Thermal Inertia','420 TIU','Compact, possibly cemented regolith. Trafficability GOOD; avoid low-TI dusty zones.'],['MCS Atmosphere','700 Pa','Dust optical depth τ ≈ 0.5 (clear). EVA weather: GO.'],['HiRISE Imagery','25 cm/px','Resolves boulders over 0.5 m; boulder fields flagged as diversions.'],['Perseverance Ground Truth','1,200+ sols','Rover traverse data validates the terrain models along the route.']],
+  tg:[['P1','Delta Front Scarp','Prime biosignature preservation target: carbonates and hydrated silica.','SHERLOC, PIXL, drill, hand lens'],['P1','Olivine-bearing Outcrop','Unweathered olivine implies rapid burial and possible organic preservation.','SHERLOC, hand sample, context imaging'],['P2','Sample Cache Depot','Retrieve cached tubes for Earth return.','Tube retrieval, GPS survey'],['P2','Lacustrine Sedimentary Unit','Deepest water-laid layers; stratigraphic section needed.','Drill, PIXL, stratigraphy logging'],['P3','Dust Devil Track Survey','Fresh subsurface material exposed; wind/dust calibration.','Scoop, MEDA calibration, soil mechanics']]},
+ gale:{n:'Gale Crater (Curiosity)',lat:-5.4,lon:137.8,elev:-4500,temp:-55,wind:9,tau:0.6,press:850,seed:23,
+  cards:[['MOLA Topography','~−4,500 m','Crater floor with Aeolis Mons (Mount Sharp) rising ~5 km at the centre.'],['CRISM Mineralogy','Clays + sulfates','Layered clay-to-sulfate sequence records a drying Mars.'],['THEMIS Thermal Inertia','~300 TIU','Mixed sandy and bedrock terrain; check sand-trap zones.'],['MCS Atmosphere','~850 Pa','Higher pressure at low elevation; dust seasonal.'],['HiRISE Imagery','25 cm/px','Reveals ripple fields and outcrop contacts for route design.'],['Curiosity Ground Truth','4,000+ sols','Decade of traverse, REMS weather and RAD dose data.']],
+  tg:[['P1','Clay-bearing Unit','Habitable lake-bed environment evidence.','Drill, spectrometer, imaging'],['P2','Sulfate Layers','Records ancient water-chemistry change.','XRF, imaging'],['P3','Aeolian Dune Field','Active sand transport, wind data.','Scoop, imaging']]},
+ hellas:{n:'Hellas Planitia Basin',lat:-42.4,lon:70.5,elev:-7100,temp:-45,wind:10,tau:0.7,press:1100,seed:37,
+  cards:[['MOLA Topography','~−7,100 m','Deepest, largest impact basin on Mars. Highest atmospheric pressure on the planet.'],['CRISM Mineralogy','Phyllosilicates','Ancient crust exposed at basin rim and floor.'],['THEMIS Thermal Inertia','Low to moderate','Fine-grained floor deposits; check trafficability.'],['MCS Atmosphere','~1,100 Pa','Highest pressure: slightly benefits solar and thermal margins. Frost possible.'],['HiRISE Imagery','25 cm/px','Gullies and layered deposits on slopes.'],['Rover Ground Truth','None','No landed assets: higher uncertainty; rely on orbital data.']],
+  tg:[['P1','Basin Floor Layered Deposits','Possible ancient lake or glacial history.','Drill, spectrometer'],['P2','Rim Gully Sites','Recent flow features.','Imaging, sampling'],['P3','Frost Patches','Seasonal volatile cycle.','Imaging, thermal sensors']]},
+ valles:{n:'Valles Marineris',lat:-14,lon:-59,elev:-4000,temp:-50,wind:14,tau:0.5,press:900,seed:41,
+  cards:[['MOLA Topography','~−4,000 m','Canyon system roughly 4,000 km long; layered walls up to ~8 km high.'],['CRISM Mineralogy','Hydrated sulfates','Layered sulfates record long-lived water activity.'],['THEMIS Thermal Inertia','Variable','Steep walls vs dusty floor: plan routes on benches.'],['MCS Atmosphere','~900 Pa','Strong katabatic winds along canyon walls.'],['HiRISE Imagery','25 cm/px','Slope streaks and fresh layers visible.'],['Rover Ground Truth','None','Unvisited; rockfall and slope hazards dominate.']],
+  tg:[['P1','Layered Wall Outcrops','Stratigraphy through geologic time.','Imaging, XRF'],['P2','Hydrated Sulfate Deposits','Water-chemistry history.','Spectrometer, sample'],['P3','Slope Streaks','Active dust processes.','Imaging']]},
+ arcadia:{n:'Arcadia Planitia',lat:47,lon:184,elev:-3200,temp:-70,wind:8,tau:0.4,press:750,seed:53,
+  cards:[['MOLA Topography','~−3,200 m','Smooth northern plain; low relief aids traverse.'],['CRISM Mineralogy','Basaltic','Widespread basaltic plains with scattered ice-rich terrain.'],['THEMIS Thermal Inertia','Moderate','Thin dust over competent ground.'],['MCS Atmosphere','~750 Pa','Cold; seasonal CO2 frost.'],['HiRISE Imagery','25 cm/px','Reveals fresh craters that excavated ice.'],['Rover Ground Truth','Radar data','Radar sounder indicates shallow ice, relevant for resources.']],
+  tg:[['P1','Ice-exposing Fresh Crater','Subsurface ice for ISRU assessment.','Drill, GPR, sampling'],['P2','Polygonal Terrain','Periglacial processes.','Imaging, thermal'],['P3','Basaltic Plain Sample','Reference regolith.','Scoop']]},
+ elysium:{n:'Elysium Planitia (InSight)',lat:4.5,lon:135.9,elev:-2600,temp:-58,wind:11,tau:0.5,press:720,seed:67,
+  cards:[['MOLA Topography','~−2,600 m','Flat plain ideal for landing and traverse.'],['CRISM Mineralogy','Basaltic sand','Dust and sand over basaltic bedrock.'],['THEMIS Thermal Inertia','Low','Sandy regolith, a trafficability watch-item.'],['MCS Atmosphere','~720 Pa','Regular dust devil activity.'],['HiRISE Imagery','25 cm/px','Small impact-excavated rocks and ripples.'],['InSight Ground Truth','Seismic + thermal','Seismometer and heat-flow data constrain subsurface properties.']],
+  tg:[['P1','Seismic Station Site','Calibrate instrument and inspect subsurface.','Imaging, tools'],['P2','Impact Ejecta Rocks','Samples from depth.','Hand sample, spectrometer'],['P3','Ripple Field','Wind transport.','Imaging']]}
+};
+const HAZ=[['☢','Solar particle events','Surface dose is roughly 0.6 mSv/day (Curiosity RAD, galactic cosmic rays). Solar particle events can add much more: monitor space weather and keep a short walk-back to shelter.'],['🌪','Dust devils and gusts','Low air density means weak wind forces but abrasive, electrostatic dust. Avoid fresh tracks; do key stops before late morning.'],['🪨','Boulder fields and slopes','Keep slopes under ~15° and detour boulder fields. HiRISE-scale imagery is used to locate them.'],['🕳','Soft regolith','Low thermal-inertia patches can be loose dust. Mark AVOID and route around the perimeter.'],['💜','Perchlorates','Mars soil contains perchlorate salts (about 0.5 wt% at Phoenix). Decontamination at the airlock is required.'],['🧊','Thermal cycling','Daily swings of ~60 °C stress suits and batteries. Schedule the main EVA in mid-day.']];
+const LAYERS=[['topo','MOLA Topography',1],['crism','CRISM Mineralogy',1],['themis','THEMIS Thermal',0],['hirise','HiRISE Terrain',0],['route','Planned Route',1],['hazards','Hazard Zones',1],['science','Science Targets',1],['wind','Wind / Dust',0]];
+const W=480,H=300,M_PER_PX=12.5;
+const M={site:'jezero',mode:'select',route:[],hz:[],sci:[],L:{},base:null,F:null};
+let marsReady=false;
+
+function rng(s){s>>>=0;return()=>(s=(s*1664525+1013904223)>>>0)/4294967296}
+function noise(seed,scale){const r=rng(seed),gw=Math.ceil(W/scale)+3,gh=Math.ceil(H/scale)+3,g=Array.from({length:gh},()=>Array.from({length:gw},r));
+  return(x,y)=>{const gx=x/scale,gy=y/scale,x0=Math.floor(gx),y0=Math.floor(gy),fx=gx-x0,fy=gy-y0,sx=fx*fx*(3-2*fx),sy=fy*fy*(3-2*fy),a=g[y0][x0],b=g[y0][x0+1],c=g[y0+1][x0],d=g[y0+1][x0+1];return a+(b-a)*sx+(c-a)*sy+(a-b-c+d)*sx*sy}}
+function fieldOf(seed,base){const n1=noise(seed,90),n2=noise(seed+1,40),n3=noise(seed+2,16);return(x,y)=>{x=Math.min(W-1,Math.max(0,x));y=Math.min(H-1,Math.max(0,y));return .55*n1(x,y)+.3*n2(x,y)+.15*n3(x,y)}}
+const mix=(a,b,t)=>a.map((v,i)=>v+(b[i]-v)*t);
+const RAMP=[[60,30,22],[168,84,48],[226,170,120]];
+const ramp=v=>v<.5?mix(RAMP[0],RAMP[1],v*2):mix(RAMP[1],RAMP[2],(v-.5)*2);
+
+function marsInit(){
+  if(marsReady)return;marsReady=true;
+  const sel=$('#m-site');sel.innerHTML=Object.entries(SITES).map(([k,s])=>`<option value="${k}">${s.n}</option>`).join('');
+  $('#m-layers').innerHTML=LAYERS.map(([k,n,d])=>{M.L[k]=!!d;return `<label><input type="checkbox" data-l="${k}" ${d?'checked':''}> ${n}</label>`}).join('');
+  $$('#m-layers input').forEach(i=>i.onchange=()=>{M.L[i.dataset.l]=i.checked;drawMap()});
+  sel.onchange=()=>{M.site=sel.value;loadSite()};
+  $$('#m-modes [data-mode]').forEach(b=>b.onclick=()=>{M.mode=b.dataset.mode;$$('#m-modes [data-mode]').forEach(x=>x.classList.toggle('on',x===b))});
+  $('#m-clear').onclick=()=>{M.route=[M.route[0]];M.hz=[];M.sci=[];drawMap()};
+  $('#m-reset').onclick=()=>loadSite();
+  const cv=$('#mapCanvas');
+  const pos=e=>{const r=cv.getBoundingClientRect();return[Math.round((e.clientX-r.left)*W/r.width),Math.round((e.clientY-r.top)*H/r.height)]};
+  cv.onclick=e=>{const[x,y]=pos(e);if(M.mode==='wp')M.route.push([x,y]);else if(M.mode==='hz')M.hz.push([x,y,16]);else if(M.mode==='sci')M.sci.push([x,y]);drawMap()};
+  cv.onmousemove=e=>{const[x,y]=pos(e),s=SITES[M.site];const lat=(s.lat+(.5-y/H)*.09).toFixed(4),lon=(s.lon+(x/W-.5)*.12).toFixed(4);const el=Math.round(s.elev+(M.F.h(x,y)-.5)*140);$('#m-cursor').textContent=`${lat}°, ${lon}°  ·  ~${el} m`};
+  $('#m-hours').oninput=renderTimeline;
+  ['m-crew','m-obj','m-hours'].forEach(id=>$('#'+id).addEventListener('change',renderTimeline));
+  $$('[data-m]').forEach(b=>b.onclick=()=>marsAction(b));
+  chatWidget($('#m-chat'),'/api/marswalk/chat',mP,"Hello, Explorer. I'm **MarswalkAI**, your surface mission assistant. Ask about your EVA route, science targets, hazards, weather or suit consumables.",['Is the route safe?','Radiation during EVA?','Oxygen budget?','Best time of day for EVA?']);
+  tabs($('#m-tabs'),$('#view-mars'));
+  $('#m-export').onclick=()=>download('marswalk-eva.md',`# MarswalkAI: ${SITES[M.site].n}\n\n`+(Object.values(STORE.mars).join('\n\n---\n\n')||'Nothing generated yet.'));
+  loadSite();
+}
+function loadSite(){
+  const s=SITES[M.site];M.F={h:fieldOf(s.seed),m:fieldOf(s.seed+100),t:fieldOf(s.seed+200)};
+  const r=rng(s.seed*7);const b=[40+r()*30,H-50-r()*40];M.base=b;M.route=[b];
+  for(let k=1;k<=8;k++){M.route.push([b[0]+k*(W-120)/9+(r()-.5)*28,b[1]-k*(H*.55)/9+Math.sin(k)*22+(r()-.5)*24].map(Math.round))}
+  M.sci=[3,5,7].map(k=>[M.route[k][0]+14,M.route[k][1]-12]);
+  M.hz=[[M.route[2][0]-30,M.route[2][1]+36,18],[M.route[6][0]+26,M.route[6][1]+30,22]];
+  $('#m-hud').innerHTML=[[s.lat+'°','Latitude'],[s.lon+'°','Longitude'],[s.elev+' m','MOLA elevation'],[s.temp+' °C','Surface temp'],['τ '+s.tau,'Dust opacity']].map(([v,l])=>`<div class="metric"><b style="font-size:22px">${v}</b><span>${l}</span></div>`).join('');
+  $('#m-data').innerHTML=s.cards.map(c=>`<div class="mini"><h4>${c[0]}</h4><b>${c[1]}</b><p>${c[2]}</p></div>`).join('')+'<p class="warnbox" style="grid-column:1/-1">Summaries are approximate public-science context for planning exercises.</p>';
+  $('#m-targets').innerHTML='<h3>Science targets along route</h3>'+s.tg.map(t=>`<div class="tgt"><div class="p ${t[0].toLowerCase()}">${t[0]}</div><div><h4>${t[1]}</h4><p>${t[2]}</p><small>Instruments: ${t[3]}</small></div></div>`).join('');
+  $('#m-haz').innerHTML=HAZ.map(h=>`<div class="mini"><h4>${h[0]} ${h[1]}</h4><p style="margin-top:6px">${h[2]}</p></div>`).join('');
+  const days=[0,1,2,3,4,5,6,7,8,9],rr=rng(s.seed+9);
+  $('#m-wx').innerHTML=[['🌡',s.temp+' °C','Surface temperature','Range about −80 °C night to −20 °C midday. EVA window 09:00–15:00 LMST.'],['💨',s.wind+' m/s','Surface wind','EVA limit 25 m/s. '+(s.wind<25?'Current: SAFE.':'HOLD.')],['🌪','τ '+s.tau,'Dust optical depth',s.tau<1?'Clear conditions.':'Reduced visibility and power.'],['⚡',s.press+' Pa','Atmospheric pressure','About 0.7–1.1% of Earth sea level.'],['☀','~590 W/m²','Solar irradiance','Roughly 43% of Earth at 1.52 AU; high UV: suit protection required.']]
+    .map(c=>`<div class="mini"><h4>${c[0]} ${c[2]}</h4><b>${c[1]}</b><p>${c[3]}</p></div>`).join('')+
+    `<div class="mini" style="grid-column:1/-1"><h4>10-sol illustrative forecast (dust tau)</h4><div class="fc">${days.map(d=>{const v=Math.max(.2,s.tau+(rr()-.5)*.5);return `<div style="height:${Math.round(v*80)}px"><span>S${d+1}</span></div>`}).join('')}</div><p style="margin-top:22px;color:var(--muted);font-size:12.5px">Synthetic trend for illustration. Use the Weather Report tool for AI analysis.</p></div>`;
+  drawMap();
+}
+function routeKm(){let d=0;for(let i=1;i<M.route.length;i++)d+=Math.hypot(M.route[i][0]-M.route[i-1][0],M.route[i][1]-M.route[i-1][1]);return d*M_PER_PX/1000}
+function drawMap(){
+  const cv=$('#mapCanvas');if(!cv||!M.F)return;const ctx=cv.getContext('2d'),id=ctx.createImageData(W,H),d=id.data,{h,m,t}=M.F,L=M.L;
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const v=h(x,y),sh=1+((h(x+1,y)-v)+(h(x,y+1)-v))*10;let c=L.topo?ramp(v):[38,38,44];
+    if(L.themis)c=mix(c,mix([40,90,200],[255,150,40],t(x,y)),.55);
+    if(L.crism){const mv=m(x,y);if(mv>.6)c=mix(c,[40,230,170],Math.min(.8,(mv-.6)*2.6))}
+    const i=(y*W+x)*4;d[i]=Math.max(0,Math.min(255,c[0]*sh));d[i+1]=Math.max(0,Math.min(255,c[1]*sh));d[i+2]=Math.max(0,Math.min(255,c[2]*sh));d[i+3]=255}
+  ctx.putImageData(id,0,0);
+  if(L.hirise){ctx.strokeStyle='#38bdf8';ctx.setLineDash([6,4]);ctx.lineWidth=1.5;ctx.strokeRect(W*.2,H*.12,W*.62,H*.76);ctx.setLineDash([]);ctx.fillStyle='#38bdf8';ctx.font='10px monospace';ctx.fillText('HiRISE 25 cm/px coverage',W*.2+6,H*.12+14)}
+  if(L.wind){ctx.strokeStyle='#ffffffaa';ctx.fillStyle='#ffffffaa';const r=rng(M.F.h(5,5)*1e6|0);for(let y=30;y<H;y+=60)for(let x=30;x<W;x+=60){const a=Math.PI*.25+(r()-.5)*.6,l=16;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+Math.cos(a)*l,y+Math.sin(a)*l);ctx.stroke();ctx.beginPath();ctx.arc(x+Math.cos(a)*l,y+Math.sin(a)*l,2,0,7);ctx.fill()}
+    ctx.fillStyle='#fff';ctx.font='10px monospace';ctx.fillText('wind NW → SE · dust devils ○',8,H-8)}
+  if(L.hazards)M.hz.forEach(([x,y,r])=>{ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fillStyle='#f8717133';ctx.fill();ctx.setLineDash([4,3]);ctx.strokeStyle='#f87171';ctx.lineWidth=2;ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#fca5a5';ctx.font='bold 12px sans-serif';ctx.fillText('⚠',x-5,y+4)});
+  if(L.route&&M.route.length){ctx.beginPath();M.route.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.strokeStyle='#fbbf24';ctx.lineWidth=2.5;ctx.stroke();
+    M.route.forEach(([x,y],i)=>{ctx.beginPath();ctx.arc(x,y,i?4:6,0,7);ctx.fillStyle=i?'#fbbf24':'#22c55e';ctx.fill();ctx.strokeStyle='#000';ctx.lineWidth=1;ctx.stroke();ctx.fillStyle='#fff';ctx.font='bold 10px monospace';ctx.fillText(i?'WP'+i:'BASE',x+7,y-6)})}
+  if(L.science)M.sci.forEach(([x,y])=>{ctx.fillStyle='#fde047';ctx.strokeStyle='#000';ctx.lineWidth=1;ctx.font='16px sans-serif';ctx.fillText('★',x-8,y+6)});
+  renderProfile();renderTimeline();
+}
+function renderProfile(){
+  const s=SITES[M.site],pts=[];
+  for(let i=1;i<M.route.length;i++){const[a,b]=[M.route[i-1],M.route[i]],n=20;for(let k=0;k<n;k++){const x=a[0]+(b[0]-a[0])*k/n,y=a[1]+(b[1]-a[1])*k/n;pts.push([x,y,s.elev+(M.F.h(x,y)-.5)*140])}}
+  if(pts.length<2){$('#profSvg').innerHTML='';$('#m-prof').innerHTML='';return}
+  let up=0,dn=0,mx=0,tiSum=0;
+  for(let i=1;i<pts.length;i++){const run=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1])*M_PER_PX,dz=pts[i][2]-pts[i-1][2];if(dz>0)up+=dz;else dn-=dz;if(run>0)mx=Math.max(mx,Math.abs(Math.atan(dz/run))*180/Math.PI)}
+  pts.forEach(p=>tiSum+=M.F.t(p[0],p[1]));const ti=tiSum/pts.length,traf=ti>.55?'GOOD':ti>.4?'FAIR':'POOR';
+  const zs=pts.map(p=>p[2]),lo=Math.min(...zs),hi=Math.max(...zs),sp=Math.max(hi-lo,1);
+  $('#profSvg').innerHTML=`<path d="M 0 150 ${pts.map((p,i)=>`L ${(i/(pts.length-1)*700).toFixed(1)} ${(130-(p[2]-lo)/sp*110).toFixed(1)}`).join(' ')} L 700 150 Z" fill="#ff6b4a33" stroke="#ff6b4a" stroke-width="2"/><text x="6" y="14" fill="#8a96b8" font-size="11">${Math.round(hi)} m</text><text x="6" y="146" fill="#8a96b8" font-size="11">${Math.round(lo)} m</text>`;
+  $('#m-prof').innerHTML=[[mx.toFixed(1)+'°','Max slope'+(mx<15?' (within limit)':' (EXCEEDS 15°)')],['+'+Math.round(up)+' / −'+Math.round(dn)+' m','Ascent / descent'],[routeKm().toFixed(1)+' km','Route length'],[traf,'Trafficability (thermal inertia)']].map(([v,l])=>`<div class="metric"><b style="font-size:20px">${v}</b><span>${l}</span></div>`).join('');
+}
+function renderTimeline(){
+  const hrs=Math.max(1,Math.min(12,+$('#m-hours').value||6)),ph=[['Pre-EVA',.08,'#6366f1'],['Egress',.05,'#0ea5e9'],['Out',.25,'#14b8a6'],['Science',.32,'#f59e0b'],['Back',.20,'#14b8a6'],['Ingress',.10,'#a855f7']];
+  let t=9*60;const fmt=m=>String(Math.floor(m/60)%24).padStart(2,'0')+':'+String(Math.round(m%60)).padStart(2,'0');
+  $('#m-gantt').innerHTML=ph.map(p=>`<div style="width:${p[1]*100}%;background:${p[2]}">${p[0]}</div>`).join('');
+  $('#m-gleg').innerHTML=ph.map(p=>{const a=t;t+=p[1]*hrs*60;return `<span>${fmt(a)}–${fmt(t)} LMST · ${p[0]} (${Math.round(p[1]*hrs*60)} min)</span>`}).join('');
+  const crew=$('#m-crew').value.startsWith('3')?3:$('#m-crew').value.startsWith('Solo')?1:2,o2=0.14*hrs;
+  $('#m-budget').innerHTML=[[Math.round(hrs*60*.32)+' min','Science time'],[o2.toFixed(2)+' kg','O₂ per astronaut'],[(o2*1.33).toFixed(2)+' kg','O₂ carried (33% reserve)'],[(o2*crew).toFixed(2)+' kg','Team O₂ used']].map(([v,l])=>`<div class="metric"><b style="font-size:22px">${v}</b><span>${l}</span></div>`).join('');
+}
+const mP=()=>{const s=SITES[M.site];return{site:s.n,lat:s.lat,lon:s.lon,elevation_m:s.elev,temp_c:s.temp,wind_ms:s.wind,dust_tau:s.tau,duration_hours:Math.max(1,Math.min(12,+$('#m-hours').value||6)),crew:$('#m-crew').value,objective:$('#m-obj').value,route_km:+routeKm().toFixed(2),waypoints:Math.max(0,M.route.length-1),hazards:M.hz.length,science_targets:M.sci.length}};
+const mOut={plan:['#o-plan','🚶 MARSWALK ROUTE PLAN','plan'],hazards:['#o-hazards','⚠ HAZARD INTELLIGENCE','hazards'],science:['#o-science','🔬 SCIENCE BRIEF','science'],weather:['#o-weather','🌪 EVA WEATHER ANALYSIS','weather'],checklist:['#o-checklist','✅ EVA CHECKLIST','checklist'],brief:['#o-brief2','📋 EVA OPERATIONS ORDER','brief']};
+function marsAction(b){const a=b.dataset.m,[sel,title,tab]=mOut[a];showTab('#m-tabs','#view-mars',tab);runAI(b,$(sel),title,'/api/marswalk/'+a,mP(),STORE.mars,a)}
+
+route();
+</script>
+</body>
+</html>
