@@ -82,6 +82,9 @@ svg text{font-family:var(--mono)}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
 .mini{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
 .mini h4{font:600 12px var(--mono);letter-spacing:.06em;color:var(--muted);text-transform:uppercase;margin:0 0 4px}.mini b{display:block;font:700 22px var(--mono);color:var(--mars);margin-bottom:6px}.mini p{margin:0;color:#c3cdea;font-size:13.5px}
+.nasa-image{grid-column:1/-1}
+.nasa-image img{display:block;width:100%;max-width:480px;aspect-ratio:1;object-fit:contain;background:#05070d;border:1px solid var(--line);border-radius:10px;margin:12px auto}
+.nasa-image .source{color:var(--muted);font-size:12.5px}
 .mapwrap{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#000}
 #mapCanvas{width:100%;display:block;cursor:crosshair;image-rendering:auto}
 .mapbar{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.mapbar button{background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:7px 12px;font:600 13px inherit;cursor:pointer}.mapbar button.on{border-color:var(--mars);background:#3a1510}
@@ -134,9 +137,9 @@ svg text{font-family:var(--mono)}
     <p style="color:var(--muted);text-align:center;margin:0">No credentials are ever entered in the browser. With no server key configured, the backend answers from its built-in demo engine so everything still works.</p>
   </div>
   <div class="card" style="margin-top:20px">
-    <h3>Science themes covered</h3>
-    <div class="chips"><span class="tagc">MOLA topography</span><span class="tagc">CRISM mineralogy</span><span class="tagc">THEMIS thermal inertia</span><span class="tagc">HiRISE 25 cm/px imagery</span><span class="tagc">MCS atmosphere</span><span class="tagc">Rover ground truth</span><span class="tagc">Space weather</span><span class="tagc">Hohmann transfers</span></div>
-    <p class="warnbox">Maps and terrain are procedurally generated illustrations for planning exploration, not real NASA imagery or elevation data. Figures are planning-level estimates.</p>
+    <h3>Surface science themes</h3>
+    <div class="chips"><span class="tagc">Topography</span><span class="tagc">Mineral diversity</span><span class="tagc">Thermal properties</span><span class="tagc">Orbital imagery</span><span class="tagc">Atmospheric context</span><span class="tagc">Rover science</span><span class="tagc">Space weather</span><span class="tagc">Trajectory analysis</span></div>
+    <p class="warnbox">The Marswalk map, route and site cards are illustrative planning content, not live NASA data layers or georeferenced elevation data. A NASA Perseverance WATSON image is shown with its source credit in the NASA Data tab.</p>
   </div>
 </section>
 
@@ -212,8 +215,8 @@ svg text{font-family:var(--mono)}
         <div class="metrics" id="m-hud"></div>
         <div class="mapwrap"><canvas id="mapCanvas" width="480" height="300"></canvas><div class="hud" id="m-cursor">hover the map</div></div>
         <div class="mapbar" id="m-modes"><button class="on" data-mode="select">Select</button><button data-mode="wp">+ Waypoint</button><button data-mode="hz">+ Hazard</button><button data-mode="sci">+ Science</button><button id="m-clear">Clear route</button><button id="m-reset">Reset layers</button></div>
-        <div class="legend"><span><i style="background:#c0693a"></i>MOLA topo</span><span><i style="background:#2ee6aa"></i>CRISM minerals</span><span><i style="background:#ff9628"></i>THEMIS thermal</span><span><i style="background:#fbbf24"></i>Route</span><span><i style="background:#f87171"></i>Hazards</span><span><i style="background:#fde047"></i>Science</span><span><i style="background:#38bdf8"></i>HiRISE coverage</span></div>
-        <p class="warnbox">Synthetic terrain: procedurally generated for illustration, not a real elevation model or imagery. ~12.5 m per pixel.</p>
+        <div class="legend"><span><i style="background:#c0693a"></i>Illustrative terrain</span><span><i style="background:#2ee6aa"></i>Illustrative mineral layer</span><span><i style="background:#ff9628"></i>Illustrative thermal layer</span><span><i style="background:#fbbf24"></i>Route</span><span><i style="background:#f87171"></i>Hazards</span><span><i style="background:#fde047"></i>Science</span><span><i style="background:#38bdf8"></i>Illustrative coverage box</span></div>
+        <p class="warnbox">Procedural map illustration; it is not georeferenced NASA imagery or elevation data. Scale and cursor coordinates are approximate.</p>
         <div class="card" style="margin-top:14px"><h3>⛰ Terrain profile along route</h3><svg id="profSvg" viewBox="0 0 700 150" style="width:100%"></svg>
           <div class="metrics" id="m-prof" style="margin:10px 0 0"></div></div>
       </div>
@@ -233,7 +236,7 @@ svg text{font-family:var(--mono)}
 </section>
 </main>
 
-<div class="footer">AstroMind v2 · multi-agent AI on CrewAI · planning-level estimates, not official NASA data</div>
+<div class="footer">AstroMind v2 · multi-agent AI on CrewAI · planning estimates · NASA imagery source credited in the NASA Data tab</div>
 
 <script src="./runtime-config.js"></script>
 <script>
@@ -377,7 +380,7 @@ const SITES={
   tg:[['P1','Seismic Station Site','Calibrate instrument and inspect subsurface.','Imaging, tools'],['P2','Impact Ejecta Rocks','Samples from depth.','Hand sample, spectrometer'],['P3','Ripple Field','Wind transport.','Imaging']]}
 };
 const HAZ=[['☢','Solar particle events','Surface dose is roughly 0.6 mSv/day (Curiosity RAD, galactic cosmic rays). Solar particle events can add much more: monitor space weather and keep a short walk-back to shelter.'],['🌪','Dust devils and gusts','Low air density means weak wind forces but abrasive, electrostatic dust. Avoid fresh tracks; do key stops before late morning.'],['🪨','Boulder fields and slopes','Keep slopes under ~15° and detour boulder fields. HiRISE-scale imagery is used to locate them.'],['🕳','Soft regolith','Low thermal-inertia patches can be loose dust. Mark AVOID and route around the perimeter.'],['💜','Perchlorates','Mars soil contains perchlorate salts (about 0.5 wt% at Phoenix). Decontamination at the airlock is required.'],['🧊','Thermal cycling','Daily swings of ~60 °C stress suits and batteries. Schedule the main EVA in mid-day.']];
-const LAYERS=[['topo','MOLA Topography',1],['crism','CRISM Mineralogy',1],['themis','THEMIS Thermal',0],['hirise','HiRISE Terrain',0],['route','Planned Route',1],['hazards','Hazard Zones',1],['science','Science Targets',1],['wind','Wind / Dust',0]];
+const LAYERS=[['topo','Synthetic topography',1],['crism','Synthetic mineral overlay',1],['themis','Synthetic thermal overlay',0],['hirise','Illustrative coverage box',0],['route','Planned Route',1],['hazards','Hazard Zones',1],['science','Science Targets',1],['wind','Illustrative wind / dust',0]];
 const W=480,H=300,M_PER_PX=12.5;
 const M={site:'jezero',mode:'select',route:[],hz:[],sci:[],L:{},base:null,F:null};
 let marsReady=false;
@@ -418,7 +421,15 @@ function loadSite(){
   M.sci=[3,5,7].map(k=>[M.route[k][0]+14,M.route[k][1]-12]);
   M.hz=[[M.route[2][0]-30,M.route[2][1]+36,18],[M.route[6][0]+26,M.route[6][1]+30,22]];
   $('#m-hud').innerHTML=[[s.lat+'°','Latitude'],[s.lon+'°','Longitude'],[s.elev+' m','MOLA elevation'],[s.temp+' °C','Surface temp'],['τ '+s.tau,'Dust opacity']].map(([v,l])=>`<div class="metric"><b style="font-size:22px">${v}</b><span>${l}</span></div>`).join('');
-  $('#m-data').innerHTML=s.cards.map(c=>`<div class="mini"><h4>${c[0]}</h4><b>${c[1]}</b><p>${c[2]}</p></div>`).join('')+'<p class="warnbox" style="grid-column:1/-1">Summaries are approximate public-science context for planning exercises.</p>';
+  const nasaImage = `<div class="mini nasa-image">
+    <h4>NASA DATA · MARS 2020 PERSEVERANCE</h4>
+    <img src="https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/01934/ids/edr/browse/shrlc/SIF_1934_0838664054_968EBY_N0894246SRLC08062_0000LMJ01_1200.jpg" alt="Mars Perseverance Sol 1934 image taken by the SHERLOC WATSON camera" loading="lazy" decoding="async">
+    <b>Mars Perseverance Sol 1934: WATSON Camera</b>
+    <p>Captured July 30, 2026 by the SHERLOC WATSON camera on NASA’s Perseverance rover. This is representative surface-science context, not a map tile or route-specific observation.</p>
+    <p class="source">Image credit: NASA/JPL-Caltech</p>
+    <a href="https://mars.nasa.gov/mars2020/multimedia/raw-images/?rawid=SIF_1934_0838664054_968EBY_N0894246SRLC08062_0000LMJ" target="_blank" rel="noopener noreferrer">NASA Mars 2020 Perseverance Raw Images ↗</a>
+  </div>`;
+  $('#m-data').innerHTML=nasaImage+s.cards.map(c=>`<div class="mini"><h4>${c[0]}</h4><b>${c[1]}</b><p>${c[2]}</p></div>`).join('')+'<p class="warnbox" style="grid-column:1/-1">Other site cards are approximate, preloaded planning context, not live NASA data layers. The linked rover image is the only NASA archive asset embedded here.</p>';
   $('#m-targets').innerHTML='<h3>Science targets along route</h3>'+s.tg.map(t=>`<div class="tgt"><div class="p ${t[0].toLowerCase()}">${t[0]}</div><div><h4>${t[1]}</h4><p>${t[2]}</p><small>Instruments: ${t[3]}</small></div></div>`).join('');
   $('#m-haz').innerHTML=HAZ.map(h=>`<div class="mini"><h4>${h[0]} ${h[1]}</h4><p style="margin-top:6px">${h[2]}</p></div>`).join('');
   const days=[0,1,2,3,4,5,6,7,8,9],rr=rng(s.seed+9);

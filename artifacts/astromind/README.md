@@ -14,5 +14,12 @@ Live CrewAI responses are optional. Install `requirements-live.txt`, then add a 
 
 ## Notes
 
-- Mars maps and terrain are procedural illustrations, not NASA imagery or elevation data.
+- The editable Marswalk map, route, and terrain overlays are procedural illustrations. Their scale and cursor coordinates are approximate, not live NASA topography.
+- The NASA Data tab embeds NASA’s **Mars Perseverance Sol 1934: WATSON Camera** image, captured July 30, 2026. Image credit: NASA/JPL-Caltech.
+- The rover image is representative science context only; it is not georegistered to a plotted route. Other site cards are preloaded planning context, not live NASA data layers.
 - Mission figures are planning-level estimates, not mission-certified.
+
+## NASA resource for award form
+
+- **Link Text:** NASA Mars 2020 Perseverance Raw Images
+- **Resource:** [Mars Perseverance Sol 1934: WATSON Camera](https://mars.nasa.gov/mars2020/multimedia/raw-images/?rawid=SIF_1934_0838664054_968EBY_N0894246SRLC08062_0000LMJ)
